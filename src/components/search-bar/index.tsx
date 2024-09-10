@@ -7,28 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CityResult } from "@/app/interfaces/CityResult";
 import { useQuery } from "@tanstack/react-query";
-import useDebounce from "@/hooks/useDebounce";
 import { Button } from "../ui/button";
-import { searchCities } from "@/actions/searchCities";
-
-// Mock data for demonstration
-const items = [
-  "Next.js",
-  "React",
-  "Vue.js",
-  "Angular",
-  "Svelte",
-  "Ember.js",
-  "Backbone.js",
-  "Alpine.js",
-  "Preact",
-  "Lit",
-  "Solid",
-  "Qwik",
-  "Astro",
-  "Nuxt.js",
-  "Gatsby",
-];
+import { useRouter } from "next/navigation";
 
 export default function FloatingSearchBar() {
   const [query, setQuery] = React.useState("");
@@ -36,6 +16,7 @@ export default function FloatingSearchBar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const searchRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const route = useRouter();
 
   const { data } = useQuery({
     queryKey: ["cities", searchValue],
@@ -50,6 +31,11 @@ export default function FloatingSearchBar() {
       return resultsCities;
     },
   });
+
+  const onClickCity = (city: CityResult) => {
+    // add name in route
+    route.push("dashboard/?city=" + city.name.split(",")[0]);
+  };
 
   const handleSearch = () => setSearchValue(query);
 
@@ -99,6 +85,7 @@ export default function FloatingSearchBar() {
                   <li
                     key={item.id}
                     className="flex items-center cursor-pointer py-2 px-2 hover:bg-accent hover:text-accent-foreground rounded-md text-sm"
+                    onClick={() => onClickCity(item)}
                   >
                     <MapPinHouseIcon className="h-8 w-8 mr-2" />
                     {item.name.split(",")[0]}

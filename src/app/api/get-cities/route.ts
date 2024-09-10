@@ -44,6 +44,8 @@ export async function GET(req: Request) {
         data: {
           name: firstCity.name,
           nominatimId: firstCity.id,
+          geometry: JSON.stringify(firstCity.geometry),
+          displayName: firstCity.name.split(",")[0],
         },
       });
     }

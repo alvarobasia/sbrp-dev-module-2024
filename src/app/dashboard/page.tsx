@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   Bell,
   Home,
@@ -19,17 +19,41 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SeachBarComponent from "@/components/search-bar";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
+import { getCityInDBAction } from "@/actions/getCityInDBAction";
+import { CityResult } from "../interfaces/CityResult";
 
 const LazyMap = dynamic(() => import("@/components/map/map"), {
   ssr: false,
   loading: () => <p>Loading...</p>,
 });
 
-const DEFAULT_CENTER = [38.907132, -77.036546];
-
 export default function Component() {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(true);
   const [isRightMenuOpen, setIsRightMenuOpen] = useState(true);
+  const [selectedCity, setSelectedCity] = useState<CityResult | null>(null);
+  const routeParans = useSearchParams();
+
+  useEffect(() => {
+    async function fetchData() {
+      if (routeParans.get("city")) {
+        console.log(routeParans.get("city"));
+        const city = await getCityInDBAction(routeParans.get("city") as string);
+
+        const cityResult: CityResult = {
+          name: city?.displayName || city?.name || "",
+          id: city?.nominatimId || 0,
+          geometry: {
+            type: "Polygon",
+            coordinates: JSON.parse(city?.geometry || "[]").coordinates,
+          },
+        };
+
+        setSelectedCity(cityResult);
+      }
+    }
+    fetchData();
+  }, [routeParans]);
 
   return (
     <div className="flex h-screen bg-background">
@@ -105,7 +129,7 @@ export default function Component() {
 
         {/* Dashboard Content */}
         <div className="flex-1  z-0">
-          <LazyMap />
+          <LazyMap polygon={selectedCity?.geometry.coordinates} />
         </div>
       </main>
 

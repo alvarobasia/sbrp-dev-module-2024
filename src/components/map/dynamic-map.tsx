@@ -1,6 +1,6 @@
 import Map from "@/components/map/map";
 
-const index = () => {
-  return <Map />;
+const index = ({ polygon } as any) => {
+  return <Map polygon={polygon} />;
 };
 export default index;

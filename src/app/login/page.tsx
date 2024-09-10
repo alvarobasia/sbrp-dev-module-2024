@@ -1,11 +1,29 @@
+"use client";
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { loginAction } from "@/actions/loginAction";
+import { useState } from "react";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const login = async (email: string, password: string) => {
+    console.log(email);
+    const response = await loginAction(email, password);
+    console.log(response);
+    if (response.error) {
+      alert(response.error);
+    } else {
+      alert("Login success");
+    }
+  };
+
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-md space-y-8">
@@ -26,6 +44,8 @@ export default function Login() {
                 type="email"
                 placeholder="Insira seu e-mail"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -35,11 +55,17 @@ export default function Login() {
                 type="password"
                 placeholder="Insira sua senha"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4  sm:justify-between">
-            <Button type="submit" className="w-full bg-[#092F8C]">
+            <Button
+              type="submit"
+              onClick={() => login(email, password)}
+              className="w-full bg-[#092F8C]"
+            >
               Entrar
             </Button>
             <Link
